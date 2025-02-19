@@ -16,7 +16,7 @@ load_dotenv()
 # Twilio credentials
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 agent_id = os.getenv("AGENT_ID")
-ngrok_endpoint = os.getenv("NGROK_ENDPOINT")
+ngrok_endpoint = os.getenv("SLOTWISE_NGROK_ENDPOINT")
 
 
 # Use FastAPI lifespan to properly manage the HTTP client
