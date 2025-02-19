@@ -1,10 +1,11 @@
 import os
 import uuid
-import asyncio
+import traceback
 import logging
 import httpx
 import uvicorn
 import aiohttp
+import asyncio
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import Response, StreamingResponse
 from twilio.twiml.voice_response import VoiceResponse, Gather
@@ -114,6 +115,7 @@ async def voice(SpeechResult: str = Form("")):
 async def send_message(message: str):
     """
     Send the caller's message to an agent and return a text response.
+    Includes timeout handling and retry logic.
     """
     thread_id = str(uuid.uuid4())
     url = f"{ngrok_endpoint}/agent/stream/messages?agent_id={agent_id}&thread_id={thread_id}"
@@ -122,19 +124,33 @@ async def send_message(message: str):
         "Content-Type": "application/json"
     }
     data = {"message": message}
-    logger.debug("Sending POST request to %s with data: %s", url, data)
 
-    try:
-        response = await client.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        response_data = response.json()
-        messages = response_data.get("messages", [])
-        content = " ".join(msg["content"] for msg in messages if "content" in msg).strip()
-        logger.info("Agent response content: %s", content)
-        return content
-    except httpx.RequestError as e:
-        logger.error("Error in send_message: %s", e)
-        return "I'm sorry, I couldn't process that request."
+    max_retries = 3
+    timeout_seconds = 10  # Increase timeout
+
+    for attempt in range(max_retries):
+        try:
+            response = await client.post(url, headers=headers, json=data, timeout=timeout_seconds)
+            response.raise_for_status()
+            response_data = response.json()
+            messages = response_data.get("messages", [])
+            content = " ".join(msg["content"] for msg in messages if "content" in msg).strip()
+            logger.info(f"Agent response (attempt {attempt + 1}): {content}")
+            return content
+
+        except httpx.ReadTimeout:
+            logger.warning(f"Timeout in send_message (attempt {attempt + 1}/{max_retries}). Retrying...")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2)  # Wait before retrying
+            else:
+                logger.error("Max retries reached. Returning fallback message.")
+                return "I'm sorry, I couldn't process that request due to a timeout."
+
+        except httpx.RequestError as e:
+            logger.error(f"Request error in send_message: {str(e)}\n{traceback.format_exc()}")
+            return "I'm sorry, I couldn't process that request."
+
+    return "I'm sorry, I couldn't process that request."
 
 
 async def text_to_speech_stream(text: str):
