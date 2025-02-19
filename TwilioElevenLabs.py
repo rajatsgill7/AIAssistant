@@ -22,7 +22,7 @@ logger.debug("Environment variables loaded.")
 # Twilio configuration
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 agent_id = os.getenv("AGENT_ID")
-ngrok_endpoint = os.getenv("NGROK_ENDPOINT")
+ngrok_endpoint = os.getenv("SLOTWISE_NGROK_ENDPOINT")
 local_ngrok_endpoint = os.getenv("LOCAL_NGROK_ENDPOINT")
 logger.debug("Twilio and agent configuration loaded.")
 
@@ -159,7 +159,7 @@ async def text_to_speech_stream(text: str):
                 raise HTTPException(status_code=500, detail="Audio streaming failed")
 
             async for chunk in response.content.iter_any():
-                yield chunk  # ✅ Correct - yielding bytes directly
+                yield chunk  # yielding bytes directly
 
 
 @app.get("/audio/{audio_id}")
