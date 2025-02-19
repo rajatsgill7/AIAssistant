@@ -1,17 +1,17 @@
-# Use an official Python runtime as a parent image
 FROM python:3.12
 
-# Set the working directory in the container
+RUN mkdir /src
 WORKDIR /src
 
-# Copy requirements first (for caching optimization)
-COPY requirements.txt /src/
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy project dependencies
+COPY ./requirements.txt src/requirements.txt
 
-# Copy the entire project
-COPY resources /src/
+# Run project dependencies
+RUN pip install --no-cache-dir -r src/requirements.txt
 
-# Expose FastAPI default port
-EXPOSE 5000
+COPY . .
+
+EXPOSE 8080

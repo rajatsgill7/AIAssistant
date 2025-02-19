@@ -1,21 +1,19 @@
 networks:
-  slot-wise-api-network:
+  slot-wise-caller-agent-api-network:
     driver: bridge
     external: true
 
 services:
   aiassistant:
     build:
-      context: .  # Use current directory
-      dockerfile: Dockerfile  # Point to the Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "5000:5000"  # Expose FastAPI app
+      - 8080:8080
     env_file:
       - .env
     networks:
       - slot-wise-caller-agent-api-network
     volumes:
-      - .:/src  # Sync project files with container
-    environment:
-      - ENV=development
-    command: ["uvicorn", "src.TwilioElevenLabs:app", "--host", "0.0.0.0", "--port", "5000"]
+      - .:/src
+    command: uvicorn src.TwilioElevenLabs:app --reload --host 0.0.0.0 --port 8080
