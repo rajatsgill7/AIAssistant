@@ -16,7 +16,7 @@ logger = logging.getLogger("TwilioElevenLabsStreaming")
 logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
-load_dotenv()
+load_dotenv(dotenv_path="resources/.env")
 logger.debug("Environment variables loaded.")
 
 # Twilio configuration
