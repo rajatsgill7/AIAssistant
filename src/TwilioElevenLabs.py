@@ -177,6 +177,18 @@ async def get_audio_stream(audio_id: str):
     return StreamingResponse(text_to_speech_stream(text_to_speak), media_type="audio/mpeg")
 
 
+async def get_agent_stream_initialise():
+    url = f"{ngrok_endpoint}/agent/stream/initialise?agent_id={agent_id}"
+    headers = {'accept': 'application/json'}
+
+    try:
+        response = await client.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except httpx.RequestError as e:
+        return {"error": str(e)}
+
+
 if __name__ == "__main__":
     port = 5000
     logger.info("Starting application on port %s", port)
