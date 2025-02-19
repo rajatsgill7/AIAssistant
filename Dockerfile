@@ -11,10 +11,7 @@ COPY requirements.txt /src/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project
-COPY . /src/
+COPY resources /src/
 
 # Expose FastAPI default port
 EXPOSE 5000
-
-# Run the application with Uvicorn
-CMD ["uvicorn", "src.TwilioElevenLabs:app", "--host", "0.0.0.0", "--port", "5000"]

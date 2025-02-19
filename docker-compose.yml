@@ -1,10 +1,19 @@
+networks:
+  slot-wise-api-network:
+    driver: bridge
+    external: true
+
 services:
   aiassistant:
     build:
       context: .  # Use current directory
-      dockerfile: resources/Dockerfile  # Point to the Dockerfile
+      dockerfile: Dockerfile  # Point to the Dockerfile
     ports:
       - "5000:5000"  # Expose FastAPI app
+    env_file:
+      - .env
+    networks:
+      - slot-wise-caller-agent-api-network
     volumes:
       - .:/src  # Sync project files with container
     environment:
