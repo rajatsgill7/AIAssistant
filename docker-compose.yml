@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  fastapi_app:
+    build:
+      context: .  # Use current directory
+      dockerfile: resources/Dockerfile  # Point to the Dockerfile
+    ports:
+      - "5000:5000"  # Expose FastAPI app
+    volumes:
+      - .:/src  # Sync project files with container
+    environment:
+      - ENV=development
+    command: ["uvicorn", "src.TwilioElevenLabs:app", "--host", "0.0.0.0", "--port", "5000"]
