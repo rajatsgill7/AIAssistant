@@ -1,5 +1,5 @@
 services:
-  fastapi_app:
+  aiassistant:
     build:
       context: .  # Use current directory
       dockerfile: resources/Dockerfile  # Point to the Dockerfile

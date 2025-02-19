@@ -23,8 +23,8 @@ logger.debug("Environment variables loaded.")
 # Twilio configuration
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 agent_id = os.getenv("AGENT_ID")
-ngrok_endpoint = os.getenv("SLOTWISE_NGROK_ENDPOINT")
-local_ngrok_endpoint = os.getenv("LOCAL_NGROK_ENDPOINT")
+slotwise_endpoint = os.getenv("SLOTWISE_ENDPOINT")
+local_endpoint = os.getenv("LOCAL_ENDPOINT")
 logger.debug("Twilio and agent configuration loaded.")
 
 # ElevenLabs configuration
@@ -68,7 +68,7 @@ async def voice(SpeechResult: str = Form("")):
             logger.info("Caller requested to cancel the call.")
             audio_id = str(uuid.uuid4())
             audio_text_store[audio_id] = "Goodbye!"
-            audio_url = f"{local_ngrok_endpoint}/audio/{audio_id}"
+            audio_url = f"{local_endpoint}/audio/{audio_id}"
             response.play(audio_url)
             response.hangup()
         else:
@@ -77,7 +77,7 @@ async def voice(SpeechResult: str = Form("")):
             # Store agent response text for streaming
             audio_id = str(uuid.uuid4())
             audio_text_store[audio_id] = send_message_response
-            audio_url = f"{local_ngrok_endpoint}/audio/{audio_id}"
+            audio_url = f"{local_endpoint}/audio/{audio_id}"
 
             gather = Gather(
                 input="speech",
@@ -95,7 +95,7 @@ async def voice(SpeechResult: str = Form("")):
         logger.info("No speech result provided. Sending initial greeting using ElevenLabs.")
         audio_id = str(uuid.uuid4())
         audio_text_store[audio_id] = "Hello! This is your AI-powered receptionist. How can I help?"
-        audio_url = f"{local_ngrok_endpoint}/audio/{audio_id}"
+        audio_url = f"{local_endpoint}/audio/{audio_id}"
 
         gather = Gather(
             input="speech",
@@ -118,7 +118,7 @@ async def send_message(message: str):
     Includes timeout handling and retry logic.
     """
     thread_id = str(uuid.uuid4())
-    url = f"{ngrok_endpoint}/agent/stream/messages?agent_id={agent_id}&thread_id={thread_id}"
+    url = f"{slotwise_endpoint}/agent/stream/messages?agent_id={agent_id}&thread_id={thread_id}"
     headers = {
         "accept": "application/json",
         "Content-Type": "application/json"
@@ -194,7 +194,7 @@ async def get_audio_stream(audio_id: str):
 
 
 async def get_agent_stream_initialise():
-    url = f"{ngrok_endpoint}/agent/stream/initialise?agent_id={agent_id}"
+    url = f"{slotwise_endpoint}/agent/stream/initialise?agent_id={agent_id}"
     headers = {'accept': 'application/json'}
 
     try:
