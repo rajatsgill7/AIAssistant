@@ -94,7 +94,8 @@ async def voice(SpeechResult: str = Form("")):
     else:
         logger.info("No speech result provided. Sending initial greeting using ElevenLabs.")
         audio_id = str(uuid.uuid4())
-        audio_text_store[audio_id] = "Hello! This is your AI-powered receptionist. How can I help?"
+        audio_text_store[
+            audio_id] = "Welcome to Derma Clear, please let me know the location & service you would like to make an appointment"
         audio_url = f"{local_endpoint}/audio/{audio_id}"
 
         gather = Gather(
@@ -203,6 +204,14 @@ async def get_agent_stream_initialise():
         return response.json()
     except httpx.RequestError as e:
         return {"error": str(e)}
+
+
+async def cleanup_audio_store():
+    while True:
+        await asyncio.sleep(300)
+        if audio_text_store:
+            logger.info("Cleaning up old audio responses.")
+            audio_text_store.clear()
 
 
 if __name__ == "__main__":
